@@ -1,0 +1,52 @@
+package xmlprc;
+
+
+import java.net.MalformedURLException;
+import java.util.HashMap;
+
+import redstone.xmlrpc.XmlRpcClient;
+import redstone.xmlrpc.XmlRpcException;
+import redstone.xmlrpc.XmlRpcFault;
+
+public class xmlprc {
+
+	
+
+		public static void main(String[] args){
+			//username and password
+			String username = "samiconn";
+			String password = "hieu1402";
+			//replace my website's address with yours
+			String xmlRpcUrl = "http://samiconn.890m.com/web/xmlrpc.php";
+
+			try {
+				//First step, init an client
+				XmlRpcClient client = new XmlRpcClient(xmlRpcUrl, true);
+				//Now, put data into the client. The client will encode all data into XML and send it to wordpress XML-RPC API
+				HashMap hmContent = new HashMap();
+				hmContent.put("title", "Test");
+				hmContent.put("description", "Test");
+				hmContent.put("post_status", "publish");
+				hmContent.put("post_content", "Nguyen thong is ok");
+				//Basically, we can put anything here as long as it match's wordpress's fields.
+	            hmContent.put("categories", new String[]{"Hero Arena"});
+				//All set!! Let's roll~ and call the wordpress.
+				client.invoke("metaWeblog.newPost", new Object[] {new Integer(1), username,password, 
+				                                                          hmContent, 
+				                                                          true} );
+			} catch (XmlRpcException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (XmlRpcFault e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	
+	
+	
+}

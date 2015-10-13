@@ -1,0 +1,115 @@
+package pdfRead;
+
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
+import javax.imageio.ImageIO;
+
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
+import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
+import com.sun.pdfview.PDFFile;
+import com.sun.pdfview.PDFPage;
+
+public class pdfRead {
+	
+	public static void parsePdf(String pdf, String txt) throws IOException {
+        PdfReader reader = new PdfReader(pdf);
+        PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+        PrintWriter out = new PrintWriter(new FileOutputStream(txt));
+        TextExtractionStrategy strategy;
+        for (int i = 1; i <= 2; i++) {
+            strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
+            out.println(strategy.getResultantText());
+                 
+        }
+        
+        
+        out.flush();
+        out.close(); 
+        reader.close();
+    }
+	
+	public static void getThumbnails(String pdf) throws IOException{
+		
+		File file = new File(pdf);
+		System.out.println(file.getName());
+		@SuppressWarnings("resource")
+		RandomAccessFile raf = new RandomAccessFile(file, "r");
+		FileChannel channel = raf.getChannel();
+		ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+		PDFFile pdffile = new PDFFile(buf);
+
+		// draw the first page to an image
+		PDFPage page = pdffile.getPage(0);
+
+		//get the width and height for the doc at the default zoom 
+		Rectangle rect = new Rectangle(0,0,
+		                (int)page.getBBox().getWidth(),
+		                (int)page.getBBox().getHeight());
+
+		//generate the image
+		java.awt.Image img = page.getImage(rect.width, rect.height, //width & height
+		                rect, // clip rect
+		                null, // null for the ImageObserver
+		                true, // fill background with white
+		                true  // block until drawing is done
+		                );
+		savePic(img,"png",pdf);
+	}
+
+
+	public static void savePic(Image iamge,String type,String dst ){ 
+	    
+	    BufferedImage bi = new BufferedImage(500, 500, BufferedImage.TYPE_3BYTE_BGR);
+	    Graphics g = bi.getGraphics(); 
+	    try { 
+	        g.drawImage(iamge, 0, 0, null);
+	        ImageIO.write(bi,type,new File(dst)); 
+	    } catch (IOException e) { 
+	        // TODO Auto-generated catch block 
+	        e.printStackTrace(); 
+	    } 
+	}
+
+
+	
+	public static void extractPage(String pdf) throws IOException{
+		
+		PdfReader reader = new PdfReader(pdf);
+		System.out.println("This PDF has "+reader.getNumberOfPages()+" pages.");
+        String page = PdfTextExtractor.getTextFromPage(reader, 1);
+        System.out.println("Page Content:\n\n"+page+"\n\n");
+        System.out.println("Is this document tampered: "+reader.isTampered());
+        System.out.println("Is this document encrypted: "+reader.isEncrypted());
+
+		
+	}
+	public static void main(String[] argr) throws IOException{
+		File[] fileList = new File("books/").listFiles();
+		for (File file : fileList) {
+			String fileName = file.getName();
+			System.out.println(fileName);
+			String pdf = "books/"+fileName;
+			String txt = fileName+".txt";
+			//parsePdf(pdf,txt);
+			//extractPage(pdf);
+			getThumbnails(pdf);
+		}
+	
+	}
+	
+}

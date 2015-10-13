@@ -1,0 +1,60 @@
+package epubRead;
+
+public class epubRead {
+	
+	   public String getText(String filepath) {
+
+		    String linez = "";
+		    File f = new File(filepath);
+
+		    InputStream epubInputStream = null;
+		    try {
+		        epubInputStream = new FileInputStream(f);
+		    } catch (FileNotFoundException e2) {
+		        // TODO Auto-generated catch block
+		        e2.printStackTrace();
+		    }
+
+		    Book book = null;
+		    try {
+		        book = (new EpubReader()).readEpub(epubInputStream);
+		    } catch (IOException e1) {
+		        // TODO Auto-generated catch block
+		        e1.printStackTrace();
+		    }
+
+		    Spine spine = book.getSpine();
+		    List<SpineReference> spineList = spine.getSpineReferences();
+		    int count = spineList.size();
+		    txtpages.setText("Size:" + Integer.toString(count) + "\n");
+		    StringBuilder string = new StringBuilder();
+		    for (int i = 0; count > i; i++) {
+		        Resource res = spine.getResource(i);
+
+		        try {
+		            InputStream is = res.getInputStream();
+		            BufferedReader reader = new BufferedReader(
+		                    new InputStreamReader(is));
+		            try {
+		                while ((line = reader.readLine()) != null) {
+		                    linez = string.append(line + "\n").toString();
+		                }
+
+		            } catch (IOException e) {
+		                e.printStackTrace();
+		            }
+
+		            // do something with stream
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+
+		    }
+
+		    //webView.loadData(linez, "text/html", "utf-8");
+
+
+		    return linez;
+		}
+
+}

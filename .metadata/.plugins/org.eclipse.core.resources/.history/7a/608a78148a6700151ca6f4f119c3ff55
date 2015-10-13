@@ -1,0 +1,93 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import facebook4j.Facebook;
+import facebook4j.FacebookException;
+import facebook4j.FacebookFactory;
+import facebook4j.IdNameEntity;
+import facebook4j.ResponseList;
+import facebook4j.User;
+import facebook4j.auth.AccessToken;
+
+/**
+ * 
+ */
+
+/**
+ * @author samiconn
+ *
+ */
+public class CollecFBUID {
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	
+	public static void searchUser(Facebook facebook) throws FacebookException, IOException {
+		File file =  new File("sample.txt");
+		File fuid = new File("fuid.txt");
+		
+		
+		
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		while (true) {
+			
+			
+				String line = reader.readLine();
+				
+			if (line == null)
+			{
+				break;
+			}
+			//System.out.println(line);
+			
+			if (line.length() != 0) {
+			ResponseList<User> results = facebook.searchUsers(line);
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fuid, true));
+			for (int i = 0; i < results.size(); i++) {
+				
+				User us = results.get(i);
+				String id = us.getId();
+				String username = us.getName();
+									
+				System.out.println(i+". "+ id +" "+" "+username);
+				writer.append(id);
+				writer.append("\r\n");
+				
+			}
+			writer.close();
+			}
+		}
+		
+		reader.close();
+	}
+	
+	
+	public static void main(String[] args) throws IOException, FacebookException {
+		// TODO Auto-generated method stub
+		String appId = "1604980453116311 : autobotsam" ;
+		String appSecret = "1a802d7abbf1cfb769b7dec010d40c27";
+		String commaSeparetedPermissions = "user_birthday, user_religion_politics, user_relationships, user_relationship_details, user_hometown, user_location, user_likes, user_education_history, user_work_history, user_website, user_managed_groups, user_events, user_photos, user_videos, user_friends, user_about_me, user_status, user_games_activity, user_tagged_places, user_posts, read_page_mailboxes, rsvp_event, email, ads_management, ads_read, read_insights, manage_pages, publish_pages, publish_actions, read_custom_friendlists, user_actions.books, user_actions.music, user_actions.video, user_actions.news, user_actions.fitness, public_profile, read_stream";
+		String accessToken = "CAAWzuKHHiZAcBALEh4pScJZBFnjtLMRy5KsZBQgFNDaQcIMYJMAmWZAPZCEZBxk19gc6J4cHJvgEW4QQmHDLZAJvWXZAL5ZC2iZAMccaDwP9q8onPZCQVezjcVnrxZBYJr5g1TApXeniB2SINV8uaV8HnmVUWDsuyGGuAdeAptdsc6pLsdjbYlmNWCL1YNpiysXepJDVZCLJCVPunywZDZD";
+		
+		Facebook facebook = new FacebookFactory().getInstance();
+		facebook.setOAuthAppId(appId, appSecret);
+		facebook.setOAuthPermissions(commaSeparetedPermissions);
+		facebook.setOAuthAccessToken(new AccessToken(accessToken));
+		
+		//Action list call
+			
+			searchUser(facebook);
+			
+			
+	
+		
+	}
+}
